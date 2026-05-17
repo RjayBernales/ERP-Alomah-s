@@ -1,0 +1,143 @@
+<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&display=swap');
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: #f5f7f5;
+    color: #1a2e1d;
+    padding: 0;
+  }
+  .module-wrap { padding: 16px; }
+  .section-header {
+    display: flex; align-items: center; justify-content: space-between;
+    background: #1a5c2a; color: white;
+    padding: 12px 18px; border-radius: 8px 8px 0 0;
+    margin-bottom: 0;
+  }
+  .section-header h2 {
+    font-size: 13px; font-weight: 700;
+    letter-spacing: 0.08em; text-transform: uppercase;
+  }
+  .section-badge {
+    font-size: 11px; background: rgba(255,255,255,0.2);
+    padding: 3px 10px; border-radius: 20px;
+  }
+  .table-wrap {
+    background: white; border-radius: 0 0 8px 8px;
+    overflow-x: auto; margin-bottom: 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  thead tr { background: #f0f7f1; }
+  th {
+    text-align: left; padding: 10px 14px;
+    font-size: 11px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.08em;
+    color: #4a7a50; border-bottom: 2px solid #d4e8d7;
+  }
+  td {
+    padding: 10px 14px; border-bottom: 1px solid #edf3ee;
+    color: #2d4a32; font-size: 13px;
+  }
+  tr:hover td { background: #f5faf5; }
+  tr:last-child td { border-bottom: none; }
+  .badge {
+    display: inline-block; font-size: 11px; font-weight: 700;
+    padding: 3px 10px; border-radius: 4px;
+  }
+  .badge-green { background: #e8f5e9; color: #2e7d32; }
+  .badge-red { background: #ffebee; color: #c62828; }
+  .badge-blue { background: #e3f2fd; color: #1565c0; }
+  .badge-orange { background: #fff3e0; color: #e65100; }
+  .kpi-row {
+    display: grid; gap: 12px; margin-bottom: 20px;
+  }
+  .kpi-card {
+    background: white; border-radius: 8px;
+    padding: 14px 18px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    border-left: 4px solid #1a5c2a;
+  }
+  .kpi-value {
+    font-size: 22px; font-weight: 700;
+    color: #1a5c2a; margin-bottom: 2px;
+  }
+  .kpi-label { font-size: 11px; color: #6a8a6e; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
+  .totals-row td { background: #e8f5e9; font-weight: 700; color: #1a5c2a; }
+  .desc-box {
+    background: #e8f5e9; border-left: 4px solid #1a5c2a;
+    border-radius: 0 6px 6px 0; padding: 12px 16px;
+    font-size: 13px; color: #2d4a32; line-height: 1.6;
+    margin-bottom: 20px;
+  }
+  .tab-nav {
+    display: flex; gap: 0; margin-bottom: 0;
+  }
+  .tab-btn {
+    padding: 9px 18px; font-size: 12px; font-weight: 600;
+    border: none; cursor: pointer; background: #d4e8d7;
+    color: #2d4a32; font-family: 'DM Sans', sans-serif;
+    transition: all 0.2s; border-radius: 6px 6px 0 0; margin-right: 3px;
+  }
+  .tab-btn.active { background: #1a5c2a; color: white; }
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+  .filter-row {
+    display: flex; align-items: center; gap: 12px;
+    padding: 12px 16px; background: white;
+    border-bottom: 1px solid #d4e8d7; margin-bottom: 0;
+  }
+  .filter-row label { font-size: 12px; font-weight: 700; color: #4a7a50; text-transform: uppercase; letter-spacing: 0.05em; }
+  .filter-row select {
+    padding: 6px 12px; border: 1px solid #d4e8d7; border-radius: 6px;
+    font-size: 13px; font-family: 'DM Sans', sans-serif;
+    background: #f5faf5; color: #1a2e1d; outline: none;
+  }
+</style></head><body>
+<div class="module-wrap">
+  <div class="desc-box">
+    The <strong>Inventory & Supply Chain Module</strong> tracks real-time lettuce stock at Alomah's Place. Monitors all 4 variants by quantity, price, and reorder level. Connected to <em>Sales & CRM</em> when stock is sold and <em>Production</em> when harvest arrives.
+  </div>
+  <div class="kpi-row" style="grid-template-columns:repeat(3,1fr)">
+    <div class="kpi-card"><div class="kpi-value">175 kg</div><div class="kpi-label">Total Stock on Hand</div></div>
+    <div class="kpi-card"><div class="kpi-value">₱20,575</div><div class="kpi-label">Inventory Value</div></div>
+    <div class="kpi-card" style="border-left-color:#e65100"><div class="kpi-value" style="color:#e65100" id="inv-low">0</div><div class="kpi-label">Low Stock Alerts</div></div>
+  </div>
+
+  <div class="section-header"><h2>📦 Lettuce Stock Records</h2><span class="section-badge">4 variants</span></div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Item ID</th><th>Lettuce Variant</th><th>Qty on Hand (kg)</th><th>Price/kg (₱)</th><th>Reorder Level (kg)</th><th>Total Value (₱)</th><th>Status</th></tr></thead>
+      <tbody id="inv-tbody"></tbody>
+    </table>
+  </div>
+</div>
+<script>
+const invData = [
+  {id:"INV-001",variant:"Romaine Lettuce",qty:55,price:120,reorder:20},
+  {id:"INV-002",variant:"Green Leaf Lettuce",qty:45,price:110,reorder:20},
+  {id:"INV-003",variant:"Red Leaf Lettuce",qty:35,price:115,reorder:15},
+  {id:"INV-004",variant:"Iceberg Lettuce",qty:40,price:125,reorder:20},
+];
+function renderInv(){
+  const tbody = document.getElementById('inv-tbody');
+  let low=0, totalVal=0, totalQty=0;
+  tbody.innerHTML = invData.map(r=>{
+    const val=r.qty*r.price; totalVal+=val; totalQty+=r.qty;
+    const isLow=r.qty<r.reorder; if(isLow) low++;
+    return `<tr>
+      <td>${r.id}</td><td><strong>${r.variant}</strong></td>
+      <td>${r.qty} kg</td><td>₱${r.price}</td><td>${r.reorder} kg</td>
+      <td>₱${val.toLocaleString()}</td>
+      <td><span class="badge ${isLow?'badge-red':'badge-green'}">${isLow?'⚠️ Low Stock':'✅ OK'}</span></td>
+    </tr>`;
+  }).join('') + `<tr class="totals-row">
+    <td colspan="2">TOTALS</td>
+    <td>${totalQty} kg</td><td></td><td></td>
+    <td>₱${totalVal.toLocaleString()}</td><td></td>
+  </tr>`;
+  document.getElementById('inv-low').textContent = low;
+}
+renderInv();
+</script></body></html>

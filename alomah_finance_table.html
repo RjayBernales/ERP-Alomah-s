@@ -1,0 +1,156 @@
+<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&display=swap');
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: #f5f7f5;
+    color: #1a2e1d;
+    padding: 0;
+  }
+  .module-wrap { padding: 16px; }
+  .section-header {
+    display: flex; align-items: center; justify-content: space-between;
+    background: #1a5c2a; color: white;
+    padding: 12px 18px; border-radius: 8px 8px 0 0;
+    margin-bottom: 0;
+  }
+  .section-header h2 {
+    font-size: 13px; font-weight: 700;
+    letter-spacing: 0.08em; text-transform: uppercase;
+  }
+  .section-badge {
+    font-size: 11px; background: rgba(255,255,255,0.2);
+    padding: 3px 10px; border-radius: 20px;
+  }
+  .table-wrap {
+    background: white; border-radius: 0 0 8px 8px;
+    overflow-x: auto; margin-bottom: 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  thead tr { background: #f0f7f1; }
+  th {
+    text-align: left; padding: 10px 14px;
+    font-size: 11px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.08em;
+    color: #4a7a50; border-bottom: 2px solid #d4e8d7;
+  }
+  td {
+    padding: 10px 14px; border-bottom: 1px solid #edf3ee;
+    color: #2d4a32; font-size: 13px;
+  }
+  tr:hover td { background: #f5faf5; }
+  tr:last-child td { border-bottom: none; }
+  .badge {
+    display: inline-block; font-size: 11px; font-weight: 700;
+    padding: 3px 10px; border-radius: 4px;
+  }
+  .badge-green { background: #e8f5e9; color: #2e7d32; }
+  .badge-red { background: #ffebee; color: #c62828; }
+  .badge-blue { background: #e3f2fd; color: #1565c0; }
+  .badge-orange { background: #fff3e0; color: #e65100; }
+  .kpi-row {
+    display: grid; gap: 12px; margin-bottom: 20px;
+  }
+  .kpi-card {
+    background: white; border-radius: 8px;
+    padding: 14px 18px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    border-left: 4px solid #1a5c2a;
+  }
+  .kpi-value {
+    font-size: 22px; font-weight: 700;
+    color: #1a5c2a; margin-bottom: 2px;
+  }
+  .kpi-label { font-size: 11px; color: #6a8a6e; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
+  .totals-row td { background: #e8f5e9; font-weight: 700; color: #1a5c2a; }
+  .desc-box {
+    background: #e8f5e9; border-left: 4px solid #1a5c2a;
+    border-radius: 0 6px 6px 0; padding: 12px 16px;
+    font-size: 13px; color: #2d4a32; line-height: 1.6;
+    margin-bottom: 20px;
+  }
+  .tab-nav {
+    display: flex; gap: 0; margin-bottom: 0;
+  }
+  .tab-btn {
+    padding: 9px 18px; font-size: 12px; font-weight: 600;
+    border: none; cursor: pointer; background: #d4e8d7;
+    color: #2d4a32; font-family: 'DM Sans', sans-serif;
+    transition: all 0.2s; border-radius: 6px 6px 0 0; margin-right: 3px;
+  }
+  .tab-btn.active { background: #1a5c2a; color: white; }
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+  .filter-row {
+    display: flex; align-items: center; gap: 12px;
+    padding: 12px 16px; background: white;
+    border-bottom: 1px solid #d4e8d7; margin-bottom: 0;
+  }
+  .filter-row label { font-size: 12px; font-weight: 700; color: #4a7a50; text-transform: uppercase; letter-spacing: 0.05em; }
+  .filter-row select {
+    padding: 6px 12px; border: 1px solid #d4e8d7; border-radius: 6px;
+    font-size: 13px; font-family: 'DM Sans', sans-serif;
+    background: #f5faf5; color: #1a2e1d; outline: none;
+  }
+</style></head><body>
+<div class="module-wrap">
+  <div class="desc-box">
+    The <strong>Finance Module</strong> records all income and expenses of Alomah's Place & Nature Farm. Connected to <em>Sales & CRM</em> for income and <em>HRM</em> for payroll expenses.
+  </div>
+  <div class="kpi-row" style="grid-template-columns:repeat(3,1fr)">
+    <div class="kpi-card"><div class="kpi-value" id="kpi-income">₱32,300</div><div class="kpi-label">Total Income</div></div>
+    <div class="kpi-card" style="border-left-color:#c62828"><div class="kpi-value" style="color:#c62828" id="kpi-expense">₱14,900</div><div class="kpi-label">Total Expenses</div></div>
+    <div class="kpi-card" style="border-left-color:#1565c0"><div class="kpi-value" style="color:#1565c0" id="kpi-profit">₱17,400</div><div class="kpi-label">Net Profit</div></div>
+  </div>
+
+  <div class="filter-row">
+    <label>Filter by Type:</label>
+    <select id="fin-filter" onchange="filterFinance()">
+      <option value="All">— Show All —</option>
+      <option value="Income">Income Only</option>
+      <option value="Expense">Expense Only</option>
+    </select>
+  </div>
+
+  <div class="section-header"><h2>📒 Transaction Records</h2><span class="section-badge" id="fin-count">8 entries</span></div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Date</th><th>Description</th><th>Type</th><th>Amount (₱)</th><th>Module Link</th></tr></thead>
+      <tbody id="fin-tbody"></tbody>
+    </table>
+  </div>
+</div>
+<script>
+const finData = [
+  {date:"May 1, 2025",desc:"Farm tour bookings",type:"Income",amount:15000,module:"Sales_CRM"},
+  {date:"May 2, 2025",desc:"Lettuce sales",type:"Income",amount:4500,module:"Inventory"},
+  {date:"May 3, 2025",desc:"Staff wages",type:"Expense",amount:8000,module:"HRM"},
+  {date:"May 4, 2025",desc:"Feed and fertilizer",type:"Expense",amount:2200,module:"Inventory"},
+  {date:"May 5, 2025",desc:"Eco-lodge bookings",type:"Income",amount:9600,module:"Sales_CRM"},
+  {date:"May 6, 2025",desc:"Equipment maintenance",type:"Expense",amount:1800,module:"Production"},
+  {date:"May 7, 2025",desc:"Souvenir merchandise",type:"Income",amount:3200,module:"Sales_CRM"},
+  {date:"May 8, 2025",desc:"Utilities (electric/water)",type:"Expense",amount:2900,module:"Finance"},
+];
+function filterFinance(){
+  const f = document.getElementById('fin-filter').value;
+  const rows = f==='All'?finData:finData.filter(r=>r.type===f);
+  renderFin(rows);
+}
+function renderFin(rows){
+  const tbody = document.getElementById('fin-tbody');
+  tbody.innerHTML = rows.map(r=>`<tr>
+    <td>${r.date}</td><td>${r.desc}</td>
+    <td><span class="badge ${r.type==='Income'?'badge-green':'badge-red'}">${r.type}</span></td>
+    <td>₱${r.amount.toLocaleString()}</td>
+    <td><span class="badge badge-blue">${r.module}</span></td>
+  </tr>`).join('') + `<tr class="totals-row">
+    <td colspan="3">TOTALS</td>
+    <td>Income: ₱${rows.filter(r=>r.type==='Income').reduce((s,r)=>s+r.amount,0).toLocaleString()} &nbsp;|&nbsp; Expense: ₱${rows.filter(r=>r.type==='Expense').reduce((s,r)=>s+r.amount,0).toLocaleString()}</td>
+    <td></td>
+  </tr>`;
+  document.getElementById('fin-count').textContent = rows.length + ' entries';
+}
+renderFin(finData);
+</script></body></html>

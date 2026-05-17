@@ -1,0 +1,160 @@
+<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&display=swap');
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: #f5f7f5;
+    color: #1a2e1d;
+    padding: 0;
+  }
+  .module-wrap { padding: 16px; }
+  .section-header {
+    display: flex; align-items: center; justify-content: space-between;
+    background: #1a5c2a; color: white;
+    padding: 12px 18px; border-radius: 8px 8px 0 0;
+    margin-bottom: 0;
+  }
+  .section-header h2 {
+    font-size: 13px; font-weight: 700;
+    letter-spacing: 0.08em; text-transform: uppercase;
+  }
+  .section-badge {
+    font-size: 11px; background: rgba(255,255,255,0.2);
+    padding: 3px 10px; border-radius: 20px;
+  }
+  .table-wrap {
+    background: white; border-radius: 0 0 8px 8px;
+    overflow-x: auto; margin-bottom: 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  thead tr { background: #f0f7f1; }
+  th {
+    text-align: left; padding: 10px 14px;
+    font-size: 11px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.08em;
+    color: #4a7a50; border-bottom: 2px solid #d4e8d7;
+  }
+  td {
+    padding: 10px 14px; border-bottom: 1px solid #edf3ee;
+    color: #2d4a32; font-size: 13px;
+  }
+  tr:hover td { background: #f5faf5; }
+  tr:last-child td { border-bottom: none; }
+  .badge {
+    display: inline-block; font-size: 11px; font-weight: 700;
+    padding: 3px 10px; border-radius: 4px;
+  }
+  .badge-green { background: #e8f5e9; color: #2e7d32; }
+  .badge-red { background: #ffebee; color: #c62828; }
+  .badge-blue { background: #e3f2fd; color: #1565c0; }
+  .badge-orange { background: #fff3e0; color: #e65100; }
+  .kpi-row {
+    display: grid; gap: 12px; margin-bottom: 20px;
+  }
+  .kpi-card {
+    background: white; border-radius: 8px;
+    padding: 14px 18px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    border-left: 4px solid #1a5c2a;
+  }
+  .kpi-value {
+    font-size: 22px; font-weight: 700;
+    color: #1a5c2a; margin-bottom: 2px;
+  }
+  .kpi-label { font-size: 11px; color: #6a8a6e; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
+  .totals-row td { background: #e8f5e9; font-weight: 700; color: #1a5c2a; }
+  .desc-box {
+    background: #e8f5e9; border-left: 4px solid #1a5c2a;
+    border-radius: 0 6px 6px 0; padding: 12px 16px;
+    font-size: 13px; color: #2d4a32; line-height: 1.6;
+    margin-bottom: 20px;
+  }
+  .tab-nav {
+    display: flex; gap: 0; margin-bottom: 0;
+  }
+  .tab-btn {
+    padding: 9px 18px; font-size: 12px; font-weight: 600;
+    border: none; cursor: pointer; background: #d4e8d7;
+    color: #2d4a32; font-family: 'DM Sans', sans-serif;
+    transition: all 0.2s; border-radius: 6px 6px 0 0; margin-right: 3px;
+  }
+  .tab-btn.active { background: #1a5c2a; color: white; }
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+  .filter-row {
+    display: flex; align-items: center; gap: 12px;
+    padding: 12px 16px; background: white;
+    border-bottom: 1px solid #d4e8d7; margin-bottom: 0;
+  }
+  .filter-row label { font-size: 12px; font-weight: 700; color: #4a7a50; text-transform: uppercase; letter-spacing: 0.05em; }
+  .filter-row select {
+    padding: 6px 12px; border: 1px solid #d4e8d7; border-radius: 6px;
+    font-size: 13px; font-family: 'DM Sans', sans-serif;
+    background: #f5faf5; color: #1a2e1d; outline: none;
+  }
+</style></head><body>
+<div class="module-wrap">
+  <div class="desc-box">
+    The <strong>Production Module</strong> tracks all weekly lettuce harvests of Alomah's Place. Records quantities harvested per variant, monitors what was sold, and calculates remaining stock. Connected to <em>Inventory</em> and <em>Sales & CRM</em>.
+  </div>
+  <div class="kpi-row" style="grid-template-columns:repeat(3,1fr)">
+    <div class="kpi-card"><div class="kpi-value">175 kg</div><div class="kpi-label">Total Harvested</div></div>
+    <div class="kpi-card"><div class="kpi-value">80 kg</div><div class="kpi-label">Total Sold</div></div>
+    <div class="kpi-card" style="border-left-color:#1565c0"><div class="kpi-value" style="color:#1565c0">95 kg</div><div class="kpi-label">Remaining Stock</div></div>
+  </div>
+
+  <div class="filter-row">
+    <label>Filter by Variant:</label>
+    <select id="prod-filter" onchange="filterProd()">
+      <option value="All">— Show All —</option>
+      <option value="Romaine">Romaine</option>
+      <option value="Green Leaf">Green Leaf</option>
+      <option value="Red Leaf">Red Leaf</option>
+      <option value="Iceberg">Iceberg</option>
+    </select>
+  </div>
+
+  <div class="section-header"><h2>🌱 Harvest Records</h2><span class="section-badge" id="prod-count">4 batches</span></div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Batch ID</th><th>Lettuce Variant</th><th>Week</th><th>Harvested (kg)</th><th>Sold (kg)</th><th>Remaining (kg)</th><th>Fulfillment %</th></tr></thead>
+      <tbody id="prod-tbody"></tbody>
+    </table>
+  </div>
+</div>
+<script>
+const prodData = [
+  {id:"BAT-001",variant:"Romaine",week:"Week 1 - May",harvested:55,sold:30,remaining:25},
+  {id:"BAT-002",variant:"Green Leaf",week:"Week 1 - May",harvested:45,sold:10,remaining:35},
+  {id:"BAT-003",variant:"Red Leaf",week:"Week 1 - May",harvested:35,sold:25,remaining:10},
+  {id:"BAT-004",variant:"Iceberg",week:"Week 1 - May",harvested:40,sold:15,remaining:25},
+];
+function filterProd(){
+  const f = document.getElementById('prod-filter').value;
+  const rows = f==='All'?prodData:prodData.filter(r=>r.variant===f);
+  renderProd(rows);
+}
+function renderProd(rows){
+  const tbody = document.getElementById('prod-tbody');
+  const totH=rows.reduce((s,r)=>s+r.harvested,0);
+  const totS=rows.reduce((s,r)=>s+r.sold,0);
+  const totR=rows.reduce((s,r)=>s+r.remaining,0);
+  tbody.innerHTML = rows.map(r=>{
+    const pct = Math.round((r.sold/r.harvested)*100);
+    const color = pct>=70?'badge-green':pct>=40?'badge-orange':'badge-red';
+    return `<tr>
+      <td>${r.id}</td><td><strong>${r.variant}</strong></td><td>${r.week}</td>
+      <td>${r.harvested} kg</td><td>${r.sold} kg</td><td>${r.remaining} kg</td>
+      <td><span class="badge ${color}">${pct}%</span></td>
+    </tr>`;
+  }).join('') + `<tr class="totals-row">
+    <td colspan="3">WEEKLY TOTALS</td>
+    <td>${totH} kg</td><td>${totS} kg</td><td>${totR} kg</td>
+    <td><span class="badge badge-green">${Math.round((totS/totH)*100)}%</span></td>
+  </tr>`;
+  document.getElementById('prod-count').textContent = rows.length + ' batches';
+}
+renderProd(prodData);
+</script></body></html>

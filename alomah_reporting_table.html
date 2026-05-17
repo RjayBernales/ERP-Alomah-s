@@ -1,0 +1,176 @@
+<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&display=swap');
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: #f5f7f5;
+    color: #1a2e1d;
+    padding: 0;
+  }
+  .module-wrap { padding: 16px; }
+  .section-header {
+    display: flex; align-items: center; justify-content: space-between;
+    background: #1a5c2a; color: white;
+    padding: 12px 18px; border-radius: 8px 8px 0 0;
+    margin-bottom: 0;
+  }
+  .section-header h2 {
+    font-size: 13px; font-weight: 700;
+    letter-spacing: 0.08em; text-transform: uppercase;
+  }
+  .section-badge {
+    font-size: 11px; background: rgba(255,255,255,0.2);
+    padding: 3px 10px; border-radius: 20px;
+  }
+  .table-wrap {
+    background: white; border-radius: 0 0 8px 8px;
+    overflow-x: auto; margin-bottom: 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  thead tr { background: #f0f7f1; }
+  th {
+    text-align: left; padding: 10px 14px;
+    font-size: 11px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.08em;
+    color: #4a7a50; border-bottom: 2px solid #d4e8d7;
+  }
+  td {
+    padding: 10px 14px; border-bottom: 1px solid #edf3ee;
+    color: #2d4a32; font-size: 13px;
+  }
+  tr:hover td { background: #f5faf5; }
+  tr:last-child td { border-bottom: none; }
+  .badge {
+    display: inline-block; font-size: 11px; font-weight: 700;
+    padding: 3px 10px; border-radius: 4px;
+  }
+  .badge-green { background: #e8f5e9; color: #2e7d32; }
+  .badge-red { background: #ffebee; color: #c62828; }
+  .badge-blue { background: #e3f2fd; color: #1565c0; }
+  .badge-orange { background: #fff3e0; color: #e65100; }
+  .kpi-row {
+    display: grid; gap: 12px; margin-bottom: 20px;
+  }
+  .kpi-card {
+    background: white; border-radius: 8px;
+    padding: 14px 18px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    border-left: 4px solid #1a5c2a;
+  }
+  .kpi-value {
+    font-size: 22px; font-weight: 700;
+    color: #1a5c2a; margin-bottom: 2px;
+  }
+  .kpi-label { font-size: 11px; color: #6a8a6e; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
+  .totals-row td { background: #e8f5e9; font-weight: 700; color: #1a5c2a; }
+  .desc-box {
+    background: #e8f5e9; border-left: 4px solid #1a5c2a;
+    border-radius: 0 6px 6px 0; padding: 12px 16px;
+    font-size: 13px; color: #2d4a32; line-height: 1.6;
+    margin-bottom: 20px;
+  }
+  .tab-nav {
+    display: flex; gap: 0; margin-bottom: 0;
+  }
+  .tab-btn {
+    padding: 9px 18px; font-size: 12px; font-weight: 600;
+    border: none; cursor: pointer; background: #d4e8d7;
+    color: #2d4a32; font-family: 'DM Sans', sans-serif;
+    transition: all 0.2s; border-radius: 6px 6px 0 0; margin-right: 3px;
+  }
+  .tab-btn.active { background: #1a5c2a; color: white; }
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+  .filter-row {
+    display: flex; align-items: center; gap: 12px;
+    padding: 12px 16px; background: white;
+    border-bottom: 1px solid #d4e8d7; margin-bottom: 0;
+  }
+  .filter-row label { font-size: 12px; font-weight: 700; color: #4a7a50; text-transform: uppercase; letter-spacing: 0.05em; }
+  .filter-row select {
+    padding: 6px 12px; border: 1px solid #d4e8d7; border-radius: 6px;
+    font-size: 13px; font-family: 'DM Sans', sans-serif;
+    background: #f5faf5; color: #1a2e1d; outline: none;
+  }
+</style></head><body>
+<div class="module-wrap">
+  <div class="desc-box">
+    The <strong>Reporting Module</strong> consolidates data from all ERP modules into one unified management view. All metrics here are pulled live from Finance, HRM, Inventory, Sales & CRM, and Production.
+  </div>
+
+  <div class="tab-nav">
+    <button class="tab-btn active" onclick="showTab('summary')">📊 System Summary</button>
+    <button class="tab-btn" onclick="showTab('finance')">💰 Finance</button>
+    <button class="tab-btn" onclick="showTab('operations')">📦 Operations</button>
+  </div>
+
+  <div class="tab-content active" id="tab-summary">
+    <div class="section-header" style="border-radius:0"><h2>📋 Full System Summary</h2><span class="section-badge">All Modules</span></div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Module</th><th>Key Metric</th><th>Value</th><th>Status</th></tr></thead>
+        <tbody>
+          <tr><td>Finance</td><td>Total Income (PHP)</td><td><strong>₱32,300</strong></td><td><span class="badge badge-green">✅ Good</span></td></tr>
+          <tr><td>Finance</td><td>Total Expenses (PHP)</td><td><strong>₱14,900</strong></td><td><span class="badge badge-orange">📊 Normal</span></td></tr>
+          <tr><td>Finance</td><td>Net Profit (PHP)</td><td><strong>₱17,400</strong></td><td><span class="badge badge-green">✅ Profitable</span></td></tr>
+          <tr><td>HRM</td><td>Total Active Employees</td><td><strong>4</strong></td><td><span class="badge badge-green">✅ Staffed</span></td></tr>
+          <tr><td>HRM</td><td>Total Monthly Payroll</td><td><strong>₱53,500</strong></td><td><span class="badge badge-blue">💼 Active</span></td></tr>
+          <tr><td>Inventory</td><td>Total Stock on Hand (kg)</td><td><strong>175 kg</strong></td><td><span class="badge badge-green">✅ Sufficient</span></td></tr>
+          <tr><td>Inventory</td><td>Total Inventory Value</td><td><strong>₱20,575</strong></td><td><span class="badge badge-green">✅ OK</span></td></tr>
+          <tr><td>Inventory</td><td>Low Stock Alerts</td><td><strong>0</strong></td><td><span class="badge badge-green">✅ No Alerts</span></td></tr>
+          <tr><td>Sales & CRM</td><td>Total Orders</td><td><strong>5</strong></td><td><span class="badge badge-green">✅ Active</span></td></tr>
+          <tr><td>Sales & CRM</td><td>Total Revenue (PHP)</td><td><strong>₱11,850</strong></td><td><span class="badge badge-green">✅ Good</span></td></tr>
+          <tr><td>Production</td><td>Total Harvested (kg)</td><td><strong>175 kg</strong></td><td><span class="badge badge-green">✅ On Target</span></td></tr>
+          <tr><td>Production</td><td>Total Sold (kg)</td><td><strong>80 kg</strong></td><td><span class="badge badge-blue">📦 Fulfilled</span></td></tr>
+          <tr><td>Production</td><td>Remaining Stock (kg)</td><td><strong>95 kg</strong></td><td><span class="badge badge-orange">🗃️ In Storage</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="tab-content" id="tab-finance">
+    <div class="section-header" style="border-radius:0"><h2>💰 Finance Breakdown</h2><span class="section-badge">May 2025</span></div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Date</th><th>Description</th><th>Type</th><th>Amount (₱)</th></tr></thead>
+        <tbody>
+          <tr><td>May 1</td><td>Farm tour bookings</td><td><span class="badge badge-green">Income</span></td><td>₱15,000</td></tr>
+          <tr><td>May 2</td><td>Lettuce sales</td><td><span class="badge badge-green">Income</span></td><td>₱4,500</td></tr>
+          <tr><td>May 3</td><td>Staff wages</td><td><span class="badge badge-red">Expense</span></td><td>₱8,000</td></tr>
+          <tr><td>May 4</td><td>Feed and fertilizer</td><td><span class="badge badge-red">Expense</span></td><td>₱2,200</td></tr>
+          <tr><td>May 5</td><td>Eco-lodge bookings</td><td><span class="badge badge-green">Income</span></td><td>₱9,600</td></tr>
+          <tr><td>May 6</td><td>Equipment maintenance</td><td><span class="badge badge-red">Expense</span></td><td>₱1,800</td></tr>
+          <tr><td>May 7</td><td>Souvenir merchandise</td><td><span class="badge badge-green">Income</span></td><td>₱3,200</td></tr>
+          <tr><td>May 8</td><td>Utilities</td><td><span class="badge badge-red">Expense</span></td><td>₱2,900</td></tr>
+          <tr class="totals-row"><td colspan="3">NET PROFIT</td><td>₱17,400</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="tab-content" id="tab-operations">
+    <div class="section-header" style="border-radius:0"><h2>📦 Operations Summary</h2><span class="section-badge">Inventory + Production + Sales</span></div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Lettuce Variant</th><th>Stock on Hand (kg)</th><th>Harvested (kg)</th><th>Sold (kg)</th><th>Remaining (kg)</th><th>Revenue (₱)</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Romaine</strong></td><td>55 kg</td><td>55 kg</td><td>30 kg</td><td>25 kg</td><td>₱3,600</td></tr>
+          <tr><td><strong>Green Leaf</strong></td><td>45 kg</td><td>45 kg</td><td>10 kg</td><td>35 kg</td><td>₱1,100</td></tr>
+          <tr><td><strong>Red Leaf</strong></td><td>35 kg</td><td>35 kg</td><td>25 kg</td><td>10 kg</td><td>₱2,875</td></tr>
+          <tr><td><strong>Iceberg</strong></td><td>40 kg</td><td>40 kg</td><td>15 kg</td><td>25 kg</td><td>₱1,875</td></tr>
+          <tr class="totals-row"><td>TOTALS</td><td>175 kg</td><td>175 kg</td><td>80 kg</td><td>95 kg</td><td>₱9,450</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+<script>
+function showTab(id){
+  document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('tab-'+id).classList.add('active');
+  event.target.classList.add('active');
+}
+</script></body></html>
