@@ -719,7 +719,7 @@
           <div class="panel-header"><span class="panel-title">Staff Directory</span><span class="panel-tag">LIVE DATABASE</span></div>
           <div class="panel-body">
             <table class="data-table">
-              <thead><tr><th>Name</th><th>Position</th><th>Department</th><th>Salary</th><th>Status</th></tr></thead>
+              <thead><tr><th>Name</th><th>Position</th><th>Department</th><th>Salary</th><th>Status</th><th>Action</th></tr></thead>
               <tbody id="hrmTable"></tbody>
             </table>
           </div>
@@ -741,6 +741,7 @@
             </div>
             <button class="btn-submit" onclick="addEmployee()">+ ADD EMPLOYEE</button>
             <div class="alert" id="hrm-alert">✓ Employee added. HRM KPIs and Reporting updated automatically.</div>
+            <div class="alert" id="hrm-fire-alert" style="background:rgba(231,76,60,0.1);border-color:rgba(231,76,60,0.3);color:var(--accent-red)">🔥 Employee terminated. Final pay logged in Finance. All tables updated.</div>
           </div>
         </div>
       </div>
@@ -1195,12 +1196,26 @@ function renderFinanceTable() {
 }
 
 function renderHRMTable() {
-  document.getElementById('hrmTable').innerHTML = DB.hrm.map(r => `<tr>
+  document.getElementById('hrmTable').innerHTML = DB.hrm.map((r, i) => `<tr>
     <td style="color:var(--text-primary)">${r.name}</td>
     <td>${r.position}</td><td>${r.dept}</td>
     <td style="color:var(--green)">₱${r.salary.toLocaleString()}</td>
     <td><span class="tag tag-active">${r.status}</span></td>
+    <td><button onclick="fireEmployee(${i})" style="background:rgba(231,76,60,0.15);border:1px solid rgba(231,76,60,0.35);color:var(--accent-red);border-radius:5px;padding:3px 10px;font-size:10px;font-family:'Rajdhani',sans-serif;font-weight:700;letter-spacing:1px;cursor:pointer;" onmouseover="this.style.background='rgba(231,76,60,0.3)'" onmouseout="this.style.background='rgba(231,76,60,0.15)'">🔥 FIRE</button></td>
   </tr>`).join('');
+}
+
+function fireEmployee(index) {
+  const emp = DB.hrm[index];
+  if (!emp) return;
+  if (!confirm(`Fire ${emp.name} (${emp.position})?\nThis will remove them from HRM and log a final payroll expense.`)) return;
+  const today = new Date().toLocaleDateString('en-PH', {year:'numeric',month:'long',day:'numeric'});
+  // Log termination expense in Finance (final salary/separation)
+  DB.finance.push({ date:today, desc:`Termination: ${emp.name} — final pay`, type:'Expense', amount:emp.salary, module:'HRM' });
+  // Remove from HRM
+  DB.hrm.splice(index, 1);
+  refreshAll();
+  showAlert('hrm-fire-alert');
 }
 
 function renderSalesTable() {
