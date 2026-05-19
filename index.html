@@ -128,6 +128,23 @@
     letter-spacing: 1px;
   }
 
+  .btn-reset-data {
+    width: 100%;
+    background: rgba(231,76,60,0.15);
+    border: 1px solid rgba(231,76,60,0.3);
+    border-radius: 6px;
+    color: var(--accent-red);
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    padding: 6px 10px;
+    cursor: pointer;
+    margin-top: 8px;
+    transition: background 0.2s;
+  }
+  .btn-reset-data:hover { background: rgba(231,76,60,0.3); }
+
   /* MAIN */
   .main {
     flex: 1;
@@ -167,6 +184,17 @@
     padding: 4px 10px;
     border-radius: 20px;
     font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 1px;
+  }
+
+  .cache-badge {
+    background: rgba(52,152,219,0.15);
+    border: 1px solid rgba(52,152,219,0.3);
+    color: var(--accent-blue);
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 10px;
     font-weight: 600;
     letter-spacing: 1px;
   }
@@ -442,6 +470,25 @@
   /* LOW STOCK */
   .stock-bar-wrap { margin-bottom: 10px; }
   .stock-bar-label { display: flex; justify-content: space-between; font-size: 11px; color: var(--text-secondary); margin-bottom: 4px; }
+
+  /* REPORTING TABLE */
+  .rep-section-header {
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: var(--green);
+    text-transform: uppercase;
+    padding: 10px 0 6px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 4px;
+    font-weight: 700;
+  }
+
+  /* FLASH ANIMATION for live updates */
+  @keyframes flashUpdate {
+    0% { background: rgba(46,204,113,0.3); }
+    100% { background: transparent; }
+  }
+  .flash { animation: flashUpdate 0.8s ease-out; }
 </style>
 </head>
 <body>
@@ -478,6 +525,8 @@
 
   <div class="sidebar-footer">
     Dahilayan, Manolo Fortich<br>Bukidnon · IT38C ERP Simulation
+    <br><span id="cacheLabel" style="color:var(--accent-blue);font-size:9px;display:block;margin-top:4px">💾 localStorage ACTIVE</span>
+    <button class="btn-reset-data" onclick="resetData()">⚠ RESET ALL DATA</button>
   </div>
 </div>
 
@@ -487,7 +536,8 @@
     <div class="page-title" id="pageTitle">Dashboard Overview</div>
     <div class="topbar-right">
       <div class="badge">🟢 LIVE SIMULATION</div>
-      <div style="font-size:11px;color:var(--text-muted)">Week 1 · May 2025</div>
+      <div class="cache-badge" id="saveStatus">💾 SAVED</div>
+      <div style="font-size:11px;color:var(--text-muted)" id="topbarDate">Week 1 · May 2025</div>
     </div>
   </div>
 
@@ -500,32 +550,32 @@
         <div class="kpi-card">
           <div class="kpi-icon">₱</div>
           <div class="kpi-label">Net Profit</div>
-          <div class="kpi-value">17,400</div>
-          <div class="kpi-sub">PHP · May 2025</div>
+          <div class="kpi-value" id="kpi-netprofit">—</div>
+          <div class="kpi-sub">PHP · Finance Module</div>
         </div>
         <div class="kpi-card">
           <div class="kpi-icon">📦</div>
           <div class="kpi-label">Total Stock</div>
-          <div class="kpi-value">175<span style="font-size:14px;color:var(--text-muted)"> kg</span></div>
-          <div class="kpi-sub">All 4 variants</div>
+          <div class="kpi-value" id="kpi-totalstock">—</div>
+          <div class="kpi-sub">All 4 variants (kg)</div>
         </div>
         <div class="kpi-card">
           <div class="kpi-icon">🛒</div>
           <div class="kpi-label">Total Orders</div>
-          <div class="kpi-value">5</div>
-          <div class="kpi-sub">₱11,850 revenue</div>
+          <div class="kpi-value" id="kpi-orders">—</div>
+          <div class="kpi-sub" id="kpi-orders-sub">PHP revenue</div>
         </div>
         <div class="kpi-card">
           <div class="kpi-icon">👥</div>
           <div class="kpi-label">Employees</div>
-          <div class="kpi-value">4</div>
-          <div class="kpi-sub">₱53,500 payroll</div>
+          <div class="kpi-value" id="kpi-employees">—</div>
+          <div class="kpi-sub" id="kpi-payroll-sub">PHP payroll</div>
         </div>
         <div class="kpi-card">
           <div class="kpi-icon">🌱</div>
           <div class="kpi-label">Harvested</div>
-          <div class="kpi-value">175<span style="font-size:14px;color:var(--text-muted)"> kg</span></div>
-          <div class="kpi-sub">80 kg sold · 95 remaining</div>
+          <div class="kpi-value" id="kpi-harvested">—</div>
+          <div class="kpi-sub" id="kpi-harvest-sub">sold · remaining</div>
         </div>
       </div>
 
@@ -591,18 +641,18 @@
       <div class="kpi-grid">
         <div class="kpi-card">
           <div class="kpi-label">Total Income</div>
-          <div class="kpi-value" style="color:var(--green)">32,300</div>
-          <div class="kpi-sub">PHP · May 2025</div>
+          <div class="kpi-value" style="color:var(--green)" id="fin-kpi-income">—</div>
+          <div class="kpi-sub">PHP · this period</div>
         </div>
         <div class="kpi-card">
           <div class="kpi-label">Total Expenses</div>
-          <div class="kpi-value" style="color:var(--accent-red)">14,900</div>
-          <div class="kpi-sub">PHP · May 2025</div>
+          <div class="kpi-value" style="color:var(--accent-red)" id="fin-kpi-expense">—</div>
+          <div class="kpi-sub">PHP · this period</div>
         </div>
         <div class="kpi-card">
           <div class="kpi-label">Net Profit</div>
-          <div class="kpi-value">17,400</div>
-          <div class="kpi-sub">PHP · May 2025</div>
+          <div class="kpi-value" id="fin-kpi-profit">—</div>
+          <div class="kpi-sub">PHP · this period</div>
         </div>
       </div>
 
@@ -645,7 +695,7 @@
                 <option>Sales_CRM</option><option>Inventory</option><option>HRM</option><option>Production</option><option>Finance</option>
               </select></div>
             <button class="btn-submit" onclick="addFinanceEntry()">+ LOG ENTRY</button>
-            <div class="alert" id="fin-alert">✓ Entry logged successfully into Finance database.</div>
+            <div class="alert" id="fin-alert">✓ Entry logged. Finance KPIs and Reporting updated automatically.</div>
           </div>
         </div>
       </div>
@@ -655,9 +705,9 @@
     <div class="module-page" id="page-hrm">
       <div class="section-title">Human Resource Management</div>
       <div class="kpi-grid">
-        <div class="kpi-card"><div class="kpi-label">Total Employees</div><div class="kpi-value">4</div><div class="kpi-sub">Active staff</div></div>
-        <div class="kpi-card"><div class="kpi-label">Total Payroll</div><div class="kpi-value">53,500</div><div class="kpi-sub">PHP monthly</div></div>
-        <div class="kpi-card"><div class="kpi-label">Departments</div><div class="kpi-value">4</div><div class="kpi-sub">Production · Sales · Finance · Ops</div></div>
+        <div class="kpi-card"><div class="kpi-label">Total Employees</div><div class="kpi-value" id="hrm-kpi-count">—</div><div class="kpi-sub">Active staff</div></div>
+        <div class="kpi-card"><div class="kpi-label">Total Payroll</div><div class="kpi-value" id="hrm-kpi-payroll">—</div><div class="kpi-sub">PHP monthly</div></div>
+        <div class="kpi-card"><div class="kpi-label">Departments</div><div class="kpi-value" id="hrm-kpi-depts">—</div><div class="kpi-sub">Active departments</div></div>
       </div>
 
       <div class="grid-2">
@@ -690,7 +740,7 @@
               <div class="form-group"><label class="form-label">Monthly Salary (PHP)</label><input type="number" class="form-input" id="hrm-salary" placeholder="12000"/></div>
             </div>
             <button class="btn-submit" onclick="addEmployee()">+ ADD EMPLOYEE</button>
-            <div class="alert" id="hrm-alert">✓ Employee added to HRM database.</div>
+            <div class="alert" id="hrm-alert">✓ Employee added. HRM KPIs and Reporting updated automatically.</div>
           </div>
         </div>
       </div>
@@ -700,8 +750,8 @@
     <div class="module-page" id="page-inventory">
       <div class="section-title">Inventory & Supply Chain</div>
       <div class="kpi-grid">
-        <div class="kpi-card"><div class="kpi-label">Total Stock</div><div class="kpi-value">175<span style="font-size:14px;color:var(--text-muted)"> kg</span></div><div class="kpi-sub">All variants combined</div></div>
-        <div class="kpi-card"><div class="kpi-label">Inventory Value</div><div class="kpi-value">20,575</div><div class="kpi-sub">PHP total</div></div>
+        <div class="kpi-card"><div class="kpi-label">Total Stock</div><div class="kpi-value" id="inv-kpi-stock">—</div><div class="kpi-sub">All variants combined (kg)</div></div>
+        <div class="kpi-card"><div class="kpi-label">Inventory Value</div><div class="kpi-value" id="inv-kpi-value">—</div><div class="kpi-sub">PHP total</div></div>
         <div class="kpi-card"><div class="kpi-label">Low Stock Items</div><div class="kpi-value" id="lowStockCount" style="color:var(--accent)">0</div><div class="kpi-sub">Below reorder level</div></div>
       </div>
 
@@ -733,7 +783,7 @@
             </div>
             <div class="form-group"><label class="form-label">Quantity (kg)</label><input type="number" class="form-input" id="inv-qty" placeholder="0"/></div>
             <button class="btn-submit" onclick="updateStock()">+ UPDATE STOCK</button>
-            <div class="alert" id="inv-alert">✓ Stock updated in Inventory database.</div>
+            <div class="alert" id="inv-alert">✓ Stock updated. Inventory KPIs and Reporting updated automatically.</div>
           </div>
         </div>
       </div>
@@ -743,10 +793,10 @@
     <div class="module-page" id="page-sales">
       <div class="section-title">Sales & Customer Relationship Management</div>
       <div class="kpi-grid">
-        <div class="kpi-card"><div class="kpi-label">Total Orders</div><div class="kpi-value" id="salesOrderCount">5</div><div class="kpi-sub">Active orders</div></div>
-        <div class="kpi-card"><div class="kpi-label">Total Revenue</div><div class="kpi-value" id="salesRevenue">11,850</div><div class="kpi-sub">PHP this period</div></div>
-        <div class="kpi-card"><div class="kpi-label">CDO Orders</div><div class="kpi-value">3</div><div class="kpi-sub">Pickup point</div></div>
-        <div class="kpi-card"><div class="kpi-label">Iligan Orders</div><div class="kpi-value">2</div><div class="kpi-sub">Pickup point</div></div>
+        <div class="kpi-card"><div class="kpi-label">Total Orders</div><div class="kpi-value" id="salesOrderCount">—</div><div class="kpi-sub">Active orders</div></div>
+        <div class="kpi-card"><div class="kpi-label">Total Revenue</div><div class="kpi-value" id="salesRevenue">—</div><div class="kpi-sub">PHP this period</div></div>
+        <div class="kpi-card"><div class="kpi-label">CDO Orders</div><div class="kpi-value" id="salesCDO">—</div><div class="kpi-sub">Pickup point</div></div>
+        <div class="kpi-card"><div class="kpi-label">Iligan Orders</div><div class="kpi-value" id="salesIligan">—</div><div class="kpi-sub">Pickup point</div></div>
       </div>
 
       <div class="grid-2">
@@ -777,7 +827,7 @@
             <div class="form-row">
               <div class="form-group"><label class="form-label">Client Name</label><input type="text" class="form-input" id="sal-client" placeholder="Shakey's CDO"/></div>
               <div class="form-group"><label class="form-label">Client Type</label>
-                <select class="form-select" id="sal-type"><option>Restaurant</option><option>Hotel</option></select></div>
+                <select class="form-select" id="sal-type"><option>Restaurant</option><option>Hotel</option><option>Individual</option></select></div>
             </div>
             <div class="form-row">
               <div class="form-group"><label class="form-label">Lettuce Variant</label>
@@ -785,12 +835,12 @@
               <div class="form-group"><label class="form-label">Quantity (kg)</label><input type="number" class="form-input" id="sal-qty" placeholder="10"/></div>
             </div>
             <div class="form-row">
-              <div class="form-group"><label class="form-label">Price per kg (PHP)</label><input type="number" class="form-input" id="sal-price" placeholder="120"/></div>
+              <div class="form-group"><label class="form-label">Price per kg (PHP)</label><input type="number" class="form-input" id="sal-price" placeholder="180"/></div>
               <div class="form-group"><label class="form-label">Pickup Point</label>
                 <select class="form-select" id="sal-pickup"><option>CDO</option><option>Iligan</option></select></div>
             </div>
             <button class="btn-submit" onclick="addOrder()">+ RECORD ORDER</button>
-            <div class="alert" id="sal-alert">✓ Order recorded. Inventory and Finance updated automatically.</div>
+            <div class="alert" id="sal-alert">✓ Order recorded. Inventory deducted, Finance income logged, Reporting updated.</div>
           </div>
         </div>
       </div>
@@ -800,9 +850,9 @@
     <div class="module-page" id="page-production">
       <div class="section-title">Production & Business Analytics</div>
       <div class="kpi-grid">
-        <div class="kpi-card"><div class="kpi-label">Total Harvested</div><div class="kpi-value">175<span style="font-size:14px"> kg</span></div><div class="kpi-sub">Week 1 · May 2025</div></div>
-        <div class="kpi-card"><div class="kpi-label">Total Sold</div><div class="kpi-value" style="color:var(--accent-red)">80<span style="font-size:14px"> kg</span></div><div class="kpi-sub">Fulfilled to clients</div></div>
-        <div class="kpi-card"><div class="kpi-label">Remaining</div><div class="kpi-value" style="color:var(--accent)">95<span style="font-size:14px"> kg</span></div><div class="kpi-sub">Back to inventory</div></div>
+        <div class="kpi-card"><div class="kpi-label">Total Harvested</div><div class="kpi-value" id="prod-kpi-harvested">—</div><div class="kpi-sub">kg this period</div></div>
+        <div class="kpi-card"><div class="kpi-label">Total Sold</div><div class="kpi-value" id="prod-kpi-sold" style="color:var(--accent-red)">—</div><div class="kpi-sub">Fulfilled to clients</div></div>
+        <div class="kpi-card"><div class="kpi-label">Remaining</div><div class="kpi-value" id="prod-kpi-remaining" style="color:var(--accent)">—</div><div class="kpi-sub">Back to inventory</div></div>
       </div>
 
       <div class="panel">
@@ -831,10 +881,10 @@
             </div>
             <div class="form-row">
               <div class="form-group"><label class="form-label">Qty Harvested (kg)</label><input type="number" class="form-input" id="prod-harvest" placeholder="50"/></div>
-              <div class="form-group"><label class="form-label">Qty Sold (kg)</label><input type="number" class="form-input" id="prod-sold" placeholder="30"/></div>
+              <div class="form-group"><label class="form-label">Qty Pre-sold (kg)</label><input type="number" class="form-input" id="prod-sold" placeholder="0"/></div>
             </div>
             <button class="btn-submit" onclick="addHarvest()">+ LOG HARVEST</button>
-            <div class="alert" id="prod-alert">✓ Harvest logged. Production and Inventory updated.</div>
+            <div class="alert" id="prod-alert">✓ Harvest logged. Production KPIs, Inventory, and Reporting updated.</div>
           </div>
         </div>
       </div>
@@ -843,6 +893,30 @@
     <!-- REPORTING PAGE -->
     <div class="module-page" id="page-reporting">
       <div class="section-title">Reporting — System-Wide Summary</div>
+
+      <!-- KPI SUMMARY ROW -->
+      <div class="kpi-grid" style="margin-bottom:16px">
+        <div class="kpi-card">
+          <div class="kpi-label">Net Profit</div>
+          <div class="kpi-value" id="rep-kpi-profit">—</div>
+          <div class="kpi-sub">PHP · Finance</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Total Revenue</div>
+          <div class="kpi-value" id="rep-kpi-revenue">—</div>
+          <div class="kpi-sub">PHP · Sales</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Total Stock</div>
+          <div class="kpi-value" id="rep-kpi-stock">—</div>
+          <div class="kpi-sub">kg · Inventory</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Payroll Cost</div>
+          <div class="kpi-value" id="rep-kpi-payroll" style="color:var(--accent-red)">—</div>
+          <div class="kpi-sub">PHP · HRM</div>
+        </div>
+      </div>
 
       <div class="grid-2">
         <div class="panel">
@@ -867,9 +941,62 @@
       </div>
 
       <div class="panel">
-        <div class="panel-header"><span class="panel-title">Consolidated ERP Report</span><span class="panel-tag">ALL MODULES</span></div>
+        <div class="panel-header"><span class="panel-title">Consolidated ERP Report</span><span class="panel-tag">ALL MODULES · AUTO-CALCULATED</span></div>
         <div class="panel-body">
           <div id="reportingStats"></div>
+        </div>
+      </div>
+
+      <!-- REPORTING: MODULE DATA TABLES -->
+      <div class="panel">
+        <div class="panel-header"><span class="panel-title">Finance Ledger Snapshot</span><span class="panel-tag">FROM FINANCE MODULE</span></div>
+        <div class="panel-body">
+          <table class="data-table">
+            <thead><tr><th>Date</th><th>Description</th><th>Type</th><th>Amount (PHP)</th><th>Module</th></tr></thead>
+            <tbody id="rep-financeTable"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="panel">
+          <div class="panel-header"><span class="panel-title">Sales Orders Snapshot</span><span class="panel-tag">FROM SALES MODULE</span></div>
+          <div class="panel-body">
+            <table class="data-table">
+              <thead><tr><th>Client</th><th>Variant</th><th>Qty</th><th>Total</th></tr></thead>
+              <tbody id="rep-salesTable"></tbody>
+            </table>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="panel-header"><span class="panel-title">Staff & Payroll Snapshot</span><span class="panel-tag">FROM HRM MODULE</span></div>
+          <div class="panel-body">
+            <table class="data-table">
+              <thead><tr><th>Name</th><th>Dept</th><th>Salary (PHP)</th></tr></thead>
+              <tbody id="rep-hrmTable"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="panel">
+          <div class="panel-header"><span class="panel-title">Inventory Snapshot</span><span class="panel-tag">FROM INVENTORY MODULE</span></div>
+          <div class="panel-body">
+            <table class="data-table">
+              <thead><tr><th>Variant</th><th>Stock (kg)</th><th>Value (PHP)</th><th>Status</th></tr></thead>
+              <tbody id="rep-inventoryTable"></tbody>
+            </table>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="panel-header"><span class="panel-title">Production Snapshot</span><span class="panel-tag">FROM PRODUCTION MODULE</span></div>
+          <div class="panel-body">
+            <table class="data-table">
+              <thead><tr><th>Variant</th><th>Harvested</th><th>Sold</th><th>Remaining</th></tr></thead>
+              <tbody id="rep-productionTable"></tbody>
+            </table>
+          </div>
         </div>
       </div>
     </div>
@@ -878,8 +1005,8 @@
 </div><!-- end main -->
 
 <script>
-// =================== JSON DATABASE ===================
-const DB = {
+// =================== DEFAULT SEED DATA ===================
+const DEFAULT_DB = {
   finance: [
     { date:"May 1, 2025", desc:"Farm tour bookings", type:"Income", amount:15000, module:"Sales_CRM" },
     { date:"May 2, 2025", desc:"Lettuce sales", type:"Income", amount:4500, module:"Inventory" },
@@ -917,6 +1044,48 @@ const DB = {
   ]
 };
 
+// =================== LOCALSTORAGE PERSISTENCE ===================
+const STORAGE_KEY = 'alomahs_erp_v1';
+
+function saveDB() {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(DB));
+    const el = document.getElementById('saveStatus');
+    el.textContent = '💾 SAVED';
+    el.style.color = 'var(--green)';
+    setTimeout(() => { el.textContent = '💾 SAVED'; }, 1500);
+  } catch(e) {
+    document.getElementById('saveStatus').textContent = '⚠ SAVE FAILED';
+  }
+}
+
+function loadDB() {
+  try {
+    const stored = localStorage.getItem(STORAGE_KEY);
+    if (stored) {
+      const parsed = JSON.parse(stored);
+      // Merge — ensure all keys exist even if new keys were added
+      return {
+        finance:    parsed.finance    || DEFAULT_DB.finance,
+        hrm:        parsed.hrm        || DEFAULT_DB.hrm,
+        inventory:  parsed.inventory  || DEFAULT_DB.inventory,
+        sales:      parsed.sales      || DEFAULT_DB.sales,
+        production: parsed.production || DEFAULT_DB.production,
+      };
+    }
+  } catch(e) {}
+  return JSON.parse(JSON.stringify(DEFAULT_DB)); // deep copy
+}
+
+function resetData() {
+  if (!confirm('Reset ALL data to defaults? This clears your localStorage cache.')) return;
+  localStorage.removeItem(STORAGE_KEY);
+  location.reload();
+}
+
+// Load from cache (or use defaults on first visit)
+const DB = loadDB();
+
 // =================== CHART DEFAULTS ===================
 Chart.defaults.color = '#8899aa';
 Chart.defaults.font.family = "'Exo 2', sans-serif";
@@ -933,10 +1102,91 @@ function chartDefaults() {
   };
 }
 
+// =================== COMPUTED STATS (single source of truth) ===================
+function computeStats() {
+  const income   = DB.finance.filter(r=>r.type==='Income').reduce((s,r)=>s+r.amount, 0);
+  const expense  = DB.finance.filter(r=>r.type==='Expense').reduce((s,r)=>s+r.amount, 0);
+  const profit   = income - expense;
+  const revenue  = DB.sales.reduce((s,r)=>s+r.total, 0);
+  const stock    = DB.inventory.reduce((s,r)=>s+r.qty, 0);
+  const invValue = DB.inventory.reduce((s,r)=>s+r.qty*r.price, 0);
+  const payroll  = DB.hrm.reduce((s,r)=>s+r.salary, 0);
+  const harvested= DB.production.reduce((s,r)=>s+r.harvested, 0);
+  const sold     = DB.production.reduce((s,r)=>s+r.sold, 0);
+  const remaining= DB.production.reduce((s,r)=>s+r.remaining, 0);
+  const lowStock = DB.inventory.filter(i=>i.qty<i.reorder).length;
+  const cdoOrders= DB.sales.filter(r=>r.pickup==='CDO').length;
+  const iliganOrders= DB.sales.filter(r=>r.pickup==='Iligan').length;
+
+  // Top client by revenue
+  const clientMap = {};
+  DB.sales.forEach(r=>{ clientMap[r.client]=(clientMap[r.client]||0)+r.total; });
+  const topClient = Object.keys(clientMap).sort((a,b)=>clientMap[b]-clientMap[a])[0] || 'N/A';
+
+  // Unique depts
+  const depts = new Set(DB.hrm.map(r=>r.dept)).size;
+
+  return { income, expense, profit, revenue, stock, invValue, payroll,
+           harvested, sold, remaining, lowStock, cdoOrders, iliganOrders,
+           topClient, depts };
+}
+
+// =================== UPDATE ALL KPIs ===================
+function updateAllKPIs() {
+  const s = computeStats();
+  const fmt = n => n.toLocaleString();
+
+  // HOME KPIs
+  setText('kpi-netprofit',  fmt(s.profit));
+  setText('kpi-totalstock', s.stock + ' kg');
+  setText('kpi-orders',     DB.sales.length);
+  setText('kpi-orders-sub', '₱'+fmt(s.revenue)+' revenue');
+  setText('kpi-employees',  DB.hrm.length);
+  setText('kpi-payroll-sub','₱'+fmt(s.payroll)+' payroll');
+  setText('kpi-harvested',  s.harvested+' kg');
+  setText('kpi-harvest-sub',s.sold+' kg sold · '+s.remaining+' remaining');
+
+  // FINANCE KPIs
+  setText('fin-kpi-income',  '₱'+fmt(s.income));
+  setText('fin-kpi-expense', '₱'+fmt(s.expense));
+  setText('fin-kpi-profit',  '₱'+fmt(s.profit));
+
+  // HRM KPIs
+  setText('hrm-kpi-count',   DB.hrm.length);
+  setText('hrm-kpi-payroll', '₱'+fmt(s.payroll));
+  setText('hrm-kpi-depts',   s.depts);
+
+  // INVENTORY KPIs
+  setText('inv-kpi-stock',  s.stock+' kg');
+  setText('inv-kpi-value',  '₱'+fmt(s.invValue));
+  setText('lowStockCount',  s.lowStock);
+
+  // SALES KPIs
+  setText('salesOrderCount', DB.sales.length);
+  setText('salesRevenue',    fmt(s.revenue));
+  setText('salesCDO',        s.cdoOrders);
+  setText('salesIligan',     s.iliganOrders);
+
+  // PRODUCTION KPIs
+  setText('prod-kpi-harvested', s.harvested+' kg');
+  setText('prod-kpi-sold',      s.sold+' kg');
+  setText('prod-kpi-remaining', s.remaining+' kg');
+
+  // REPORTING KPIs
+  setText('rep-kpi-profit',  '₱'+fmt(s.profit));
+  setText('rep-kpi-revenue', '₱'+fmt(s.revenue));
+  setText('rep-kpi-stock',   s.stock+' kg');
+  setText('rep-kpi-payroll', '₱'+fmt(s.payroll));
+}
+
+function setText(id, val) {
+  const el = document.getElementById(id);
+  if (el) el.textContent = val;
+}
+
 // =================== RENDER TABLES ===================
 function renderFinanceTable() {
-  const tbody = document.getElementById('financeTable');
-  tbody.innerHTML = DB.finance.map(r => `<tr>
+  document.getElementById('financeTable').innerHTML = DB.finance.map(r => `<tr>
     <td>${r.date}</td><td>${r.desc}</td>
     <td><span class="tag tag-${r.type.toLowerCase()}">${r.type}</span></td>
     <td style="color:${r.type==='Income'?'var(--green)':'var(--accent-red)'}">₱${r.amount.toLocaleString()}</td>
@@ -945,8 +1195,7 @@ function renderFinanceTable() {
 }
 
 function renderHRMTable() {
-  const tbody = document.getElementById('hrmTable');
-  tbody.innerHTML = DB.hrm.map(r => `<tr>
+  document.getElementById('hrmTable').innerHTML = DB.hrm.map(r => `<tr>
     <td style="color:var(--text-primary)">${r.name}</td>
     <td>${r.position}</td><td>${r.dept}</td>
     <td style="color:var(--green)">₱${r.salary.toLocaleString()}</td>
@@ -955,8 +1204,7 @@ function renderHRMTable() {
 }
 
 function renderSalesTable() {
-  const tbody = document.getElementById('salesTable');
-  tbody.innerHTML = DB.sales.map(r => `<tr>
+  document.getElementById('salesTable').innerHTML = DB.sales.map(r => `<tr>
     <td style="color:var(--text-primary)">${r.client}</td>
     <td>${r.variant}</td><td>${r.qty} kg</td>
     <td>₱${r.price}</td>
@@ -966,8 +1214,7 @@ function renderSalesTable() {
 }
 
 function renderProductionTable() {
-  const tbody = document.getElementById('productionTable');
-  tbody.innerHTML = DB.production.map(r => `<tr>
+  document.getElementById('productionTable').innerHTML = DB.production.map(r => `<tr>
     <td style="color:var(--text-primary)">${r.variant}</td>
     <td style="color:var(--text-muted)">${r.week}</td>
     <td style="color:var(--green)">${r.harvested} kg</td>
@@ -977,10 +1224,9 @@ function renderProductionTable() {
 }
 
 function renderStockBars() {
-  const container = document.getElementById('stockBars');
-  const low = DB.inventory.filter(i => i.qty < i.reorder).length;
-  document.getElementById('lowStockCount').textContent = low;
-  container.innerHTML = DB.inventory.map(i => {
+  const s = computeStats();
+  document.getElementById('lowStockCount').textContent = s.lowStock;
+  document.getElementById('stockBars').innerHTML = DB.inventory.map(i => {
     const pct = Math.min(100, Math.round((i.qty / (i.reorder * 3)) * 100));
     const color = i.qty < i.reorder ? 'var(--accent-red)' : i.qty < i.reorder * 1.5 ? 'var(--accent)' : 'var(--green)';
     return `<div class="stock-bar-wrap">
@@ -993,62 +1239,111 @@ function renderStockBars() {
   }).join('');
 }
 
+// =================== REPORTING: ALL MODULE TABLES ===================
 function renderReporting() {
-  const income = DB.finance.filter(r=>r.type==='Income').reduce((s,r)=>s+r.amount,0);
-  const expense = DB.finance.filter(r=>r.type==='Expense').reduce((s,r)=>s+r.amount,0);
-  const revenue = DB.sales.reduce((s,r)=>s+r.total,0);
-  const stock = DB.inventory.reduce((s,r)=>s+r.qty,0);
-  const payroll = DB.hrm.reduce((s,r)=>s+r.salary,0);
-  const harvested = DB.production.reduce((s,r)=>s+r.harvested,0);
-  const sold = DB.production.reduce((s,r)=>s+r.sold,0);
+  const s = computeStats();
 
+  // Consolidated stats block
   document.getElementById('reportingStats').innerHTML = `
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
       <div>
-        <div style="font-size:10px;letter-spacing:2px;color:var(--text-muted);margin-bottom:8px">FINANCE</div>
-        <div class="stat-row"><span class="stat-label">Total Income</span><span class="stat-val green">₱${income.toLocaleString()}</span></div>
-        <div class="stat-row"><span class="stat-label">Total Expenses</span><span class="stat-val red">₱${expense.toLocaleString()}</span></div>
-        <div class="stat-row"><span class="stat-label">Net Profit</span><span class="stat-val green">₱${(income-expense).toLocaleString()}</span></div>
+        <div class="rep-section-header">FINANCE</div>
+        <div class="stat-row"><span class="stat-label">Total Income</span><span class="stat-val green">₱${s.income.toLocaleString()}</span></div>
+        <div class="stat-row"><span class="stat-label">Total Expenses</span><span class="stat-val red">₱${s.expense.toLocaleString()}</span></div>
+        <div class="stat-row"><span class="stat-label">Net Profit</span><span class="stat-val green">₱${s.profit.toLocaleString()}</span></div>
+        <div class="stat-row"><span class="stat-label">Total Transactions</span><span class="stat-val">${DB.finance.length}</span></div>
       </div>
       <div>
-        <div style="font-size:10px;letter-spacing:2px;color:var(--text-muted);margin-bottom:8px">SALES & CRM</div>
+        <div class="rep-section-header">SALES & CRM</div>
         <div class="stat-row"><span class="stat-label">Total Orders</span><span class="stat-val">${DB.sales.length}</span></div>
-        <div class="stat-row"><span class="stat-label">Total Revenue</span><span class="stat-val green">₱${revenue.toLocaleString()}</span></div>
-        <div class="stat-row"><span class="stat-label">Top Client</span><span class="stat-val">Shakey's CDO</span></div>
+        <div class="stat-row"><span class="stat-label">Total Revenue</span><span class="stat-val green">₱${s.revenue.toLocaleString()}</span></div>
+        <div class="stat-row"><span class="stat-label">Top Client</span><span class="stat-val">${s.topClient}</span></div>
+        <div class="stat-row"><span class="stat-label">CDO / Iligan</span><span class="stat-val">${s.cdoOrders} / ${s.iliganOrders}</span></div>
       </div>
       <div>
-        <div style="font-size:10px;letter-spacing:2px;color:var(--text-muted);margin-bottom:8px">INVENTORY</div>
-        <div class="stat-row"><span class="stat-label">Total Stock</span><span class="stat-val">${stock} kg</span></div>
-        <div class="stat-row"><span class="stat-label">Inventory Value</span><span class="stat-val green">₱${DB.inventory.reduce((s,r)=>s+r.qty*r.price,0).toLocaleString()}</span></div>
-        <div class="stat-row"><span class="stat-label">Low Stock Items</span><span class="stat-val amber">${DB.inventory.filter(i=>i.qty<i.reorder).length}</span></div>
+        <div class="rep-section-header">INVENTORY</div>
+        <div class="stat-row"><span class="stat-label">Total Stock</span><span class="stat-val">${s.stock} kg</span></div>
+        <div class="stat-row"><span class="stat-label">Inventory Value</span><span class="stat-val green">₱${s.invValue.toLocaleString()}</span></div>
+        <div class="stat-row"><span class="stat-label">Low Stock Items</span><span class="stat-val amber">${s.lowStock}</span></div>
+        <div class="stat-row"><span class="stat-label">Variants Tracked</span><span class="stat-val">${DB.inventory.length}</span></div>
       </div>
       <div>
-        <div style="font-size:10px;letter-spacing:2px;color:var(--text-muted);margin-bottom:8px">HRM & PRODUCTION</div>
+        <div class="rep-section-header">HRM & PRODUCTION</div>
         <div class="stat-row"><span class="stat-label">Total Employees</span><span class="stat-val">${DB.hrm.length}</span></div>
-        <div class="stat-row"><span class="stat-label">Monthly Payroll</span><span class="stat-val red">₱${payroll.toLocaleString()}</span></div>
-        <div class="stat-row"><span class="stat-label">Total Harvested</span><span class="stat-val green">${harvested} kg</span></div>
-        <div class="stat-row"><span class="stat-label">Total Sold</span><span class="stat-val">${sold} kg</span></div>
+        <div class="stat-row"><span class="stat-label">Monthly Payroll</span><span class="stat-val red">₱${s.payroll.toLocaleString()}</span></div>
+        <div class="stat-row"><span class="stat-label">Total Harvested</span><span class="stat-val green">${s.harvested} kg</span></div>
+        <div class="stat-row"><span class="stat-label">Total Sold (prod)</span><span class="stat-val">${s.sold} kg</span></div>
       </div>
     </div>`;
+
+  // Module snapshot tables
+  document.getElementById('rep-financeTable').innerHTML = DB.finance.map(r => `<tr>
+    <td>${r.date}</td><td>${r.desc}</td>
+    <td><span class="tag tag-${r.type.toLowerCase()}">${r.type}</span></td>
+    <td style="color:${r.type==='Income'?'var(--green)':'var(--accent-red)'}">₱${r.amount.toLocaleString()}</td>
+    <td style="color:var(--text-muted)">${r.module}</td>
+  </tr>`).join('');
+
+  document.getElementById('rep-salesTable').innerHTML = DB.sales.map(r => `<tr>
+    <td style="color:var(--text-primary)">${r.client}</td>
+    <td>${r.variant}</td>
+    <td>${r.qty} kg</td>
+    <td style="color:var(--green)">₱${r.total.toLocaleString()}</td>
+  </tr>`).join('');
+
+  document.getElementById('rep-hrmTable').innerHTML = DB.hrm.map(r => `<tr>
+    <td style="color:var(--text-primary)">${r.name}</td>
+    <td>${r.dept}</td>
+    <td style="color:var(--green)">₱${r.salary.toLocaleString()}</td>
+  </tr>`).join('');
+
+  document.getElementById('rep-inventoryTable').innerHTML = DB.inventory.map(i => {
+    const status = i.qty < i.reorder ? `<span class="tag tag-expense">LOW</span>` : `<span class="tag tag-active">OK</span>`;
+    return `<tr>
+      <td style="color:var(--text-primary)">${i.name}</td>
+      <td>${i.qty} kg</td>
+      <td style="color:var(--green)">₱${(i.qty*i.price).toLocaleString()}</td>
+      <td>${status}</td>
+    </tr>`;
+  }).join('');
+
+  document.getElementById('rep-productionTable').innerHTML = DB.production.map(r => `<tr>
+    <td style="color:var(--text-primary)">${r.variant}</td>
+    <td style="color:var(--green)">${r.harvested} kg</td>
+    <td style="color:var(--accent-red)">${r.sold} kg</td>
+    <td style="color:var(--accent)">${r.remaining} kg</td>
+  </tr>`).join('');
+}
+
+// =================== MASTER REFRESH (call after any data change) ===================
+function refreshAll() {
+  updateAllKPIs();
+  renderFinanceTable();
+  renderHRMTable();
+  renderSalesTable();
+  renderProductionTable();
+  renderStockBars();
+  renderReporting();
+  initCharts();
+  saveDB(); // auto-save to localStorage
 }
 
 // =================== CHARTS ===================
 const charts = {};
 function makeChart(id, config) {
-  if(charts[id]) charts[id].destroy();
+  if (charts[id]) charts[id].destroy();
   const ctx = document.getElementById(id);
-  if(!ctx) return;
+  if (!ctx) return;
   charts[id] = new Chart(ctx, config);
 }
 
 function initCharts() {
-  const income = DB.finance.filter(r=>r.type==='Income').reduce((s,r)=>s+r.amount,0);
-  const expense = DB.finance.filter(r=>r.type==='Expense').reduce((s,r)=>s+r.amount,0);
+  const s = computeStats();
 
   // HOME Finance
   makeChart('homeFinanceChart', { type:'bar', data:{
     labels:['Total Income','Total Expenses','Net Profit'],
-    datasets:[{data:[income,expense,income-expense],backgroundColor:[GREEN,RED,BLUE],borderRadius:4,borderSkipped:false}]
+    datasets:[{data:[s.income,s.expense,s.profit],backgroundColor:[GREEN,RED,BLUE],borderRadius:4,borderSkipped:false}]
   }, options:{...chartDefaults(), plugins:{legend:{display:false}}} });
 
   // HOME Stock Pie
@@ -1060,12 +1355,12 @@ function initCharts() {
   // FINANCE Bar
   makeChart('financeBarChart', { type:'bar', data:{
     labels:['Income','Expenses','Net Profit'],
-    datasets:[{data:[income,expense,income-expense],backgroundColor:[GREEN,RED,BLUE],borderRadius:6,borderSkipped:false}]
+    datasets:[{data:[s.income,s.expense,s.profit],backgroundColor:[GREEN,RED,BLUE],borderRadius:6,borderSkipped:false}]
   }, options:{...chartDefaults(), plugins:{legend:{display:false}}} });
 
   // FINANCE Line
   makeChart('financeLineChart', { type:'line', data:{
-    labels:DB.finance.map(r=>r.date.replace('May ','')),
+    labels:DB.finance.map(r=>r.date),
     datasets:[{data:DB.finance.map(r=>r.amount),borderColor:GREEN,backgroundColor:'rgba(46,204,113,0.1)',tension:0.4,fill:true,pointRadius:3}]
   }, options:{...chartDefaults(), plugins:{legend:{display:false}}} });
 
@@ -1097,11 +1392,9 @@ function initCharts() {
   }, options:{...chartDefaults(), indexAxis:'y', plugins:{legend:{display:false}}} });
 
   // SALES Pie
-  const cdo = DB.sales.filter(r=>r.pickup==='CDO').length;
-  const iligan = DB.sales.filter(r=>r.pickup==='Iligan').length;
   makeChart('salesPieChart', { type:'doughnut', data:{
     labels:['CDO','Iligan'],
-    datasets:[{data:[cdo,iligan],backgroundColor:[BLUE,AMBER],borderWidth:0,hoverOffset:6}]
+    datasets:[{data:[s.cdoOrders,s.iliganOrders],backgroundColor:[BLUE,AMBER],borderWidth:0,hoverOffset:6}]
   }, options:{plugins:{legend:{position:'bottom'}},cutout:'55%'} });
 
   // PRODUCTION Stacked Bar
@@ -1117,7 +1410,7 @@ function initCharts() {
   // REPORTING charts
   makeChart('repFinanceChart', { type:'bar', data:{
     labels:['Income','Expenses','Profit'],
-    datasets:[{data:[income,expense,income-expense],backgroundColor:[GREEN,RED,BLUE],borderRadius:4,borderSkipped:false}]
+    datasets:[{data:[s.income,s.expense,s.profit],backgroundColor:[GREEN,RED,BLUE],borderRadius:4,borderSkipped:false}]
   }, options:{...chartDefaults(), plugins:{legend:{display:false}}} });
 
   makeChart('repSalesChart', { type:'bar', data:{
@@ -1155,36 +1448,36 @@ function showPage(id) {
     if(n.textContent.toLowerCase().includes(id==='home'?'dashboard':id)) n.classList.add('active');
   });
   document.getElementById('pageTitle').textContent = pageTitles[id];
+  // Re-render reporting when navigating to it so charts are always fresh
+  if (id === 'reporting') renderReporting();
   setTimeout(()=>initCharts(), 50);
 }
 
 // =================== FORM ACTIONS ===================
 function addFinanceEntry() {
-  const date = document.getElementById('fin-date').value;
-  const desc = document.getElementById('fin-desc').value;
-  const type = document.getElementById('fin-type').value;
+  const date   = document.getElementById('fin-date').value;
+  const desc   = document.getElementById('fin-desc').value;
+  const type   = document.getElementById('fin-type').value;
   const amount = parseFloat(document.getElementById('fin-amount').value);
   const module = document.getElementById('fin-module').value;
   if(!desc || !amount || !date) return;
   DB.finance.push({ date, desc, type, amount, module });
-  renderFinanceTable(); initCharts();
-  document.getElementById('fin-alert').classList.add('show');
-  setTimeout(()=>document.getElementById('fin-alert').classList.remove('show'), 3000);
+  refreshAll();
+  showAlert('fin-alert');
   document.getElementById('fin-desc').value='';
   document.getElementById('fin-amount').value='';
 }
 
 function addEmployee() {
-  const name = document.getElementById('hrm-name').value;
-  const pos = document.getElementById('hrm-pos').value;
-  const dept = document.getElementById('hrm-dept').value;
+  const name   = document.getElementById('hrm-name').value;
+  const pos    = document.getElementById('hrm-pos').value;
+  const dept   = document.getElementById('hrm-dept').value;
   const salary = parseFloat(document.getElementById('hrm-salary').value);
   if(!name || !pos || !salary) return;
-  const id = 'EMP-00'+(DB.hrm.length+1+6);
+  const id = 'EMP-'+ String(DB.hrm.length+1).padStart(3,'0');
   DB.hrm.push({ id, name, position:pos, dept, salary, status:'Active' });
-  renderHRMTable(); initCharts();
-  document.getElementById('hrm-alert').classList.add('show');
-  setTimeout(()=>document.getElementById('hrm-alert').classList.remove('show'), 3000);
+  refreshAll();
+  showAlert('hrm-alert');
   document.getElementById('hrm-name').value='';
   document.getElementById('hrm-pos').value='';
   document.getElementById('hrm-salary').value='';
@@ -1192,70 +1485,78 @@ function addEmployee() {
 
 function updateStock() {
   const variant = document.getElementById('inv-variant').value;
-  const type = document.getElementById('inv-type').value;
-  const qty = parseFloat(document.getElementById('inv-qty').value);
+  const type    = document.getElementById('inv-type').value;
+  const qty     = parseFloat(document.getElementById('inv-qty').value);
   if(!qty) return;
   const item = DB.inventory.find(i=>i.name.includes(variant));
   if(item) {
     if(type.includes('In')) item.qty += qty;
     else item.qty = Math.max(0, item.qty - qty);
   }
-  renderStockBars(); initCharts();
-  document.getElementById('inv-alert').classList.add('show');
-  setTimeout(()=>document.getElementById('inv-alert').classList.remove('show'), 3000);
+  refreshAll();
+  showAlert('inv-alert');
   document.getElementById('inv-qty').value='';
 }
 
 function addOrder() {
-  const client = document.getElementById('sal-client').value;
-  const type = document.getElementById('sal-type').value;
+  const client  = document.getElementById('sal-client').value;
+  const type    = document.getElementById('sal-type').value;
   const variant = document.getElementById('sal-variant').value;
-  const qty = parseFloat(document.getElementById('sal-qty').value);
-  const price = parseFloat(document.getElementById('sal-price').value);
-  const pickup = document.getElementById('sal-pickup').value;
+  const qty     = parseFloat(document.getElementById('sal-qty').value);
+  const price   = parseFloat(document.getElementById('sal-price').value);
+  const pickup  = document.getElementById('sal-pickup').value;
   if(!client || !qty || !price) return;
   const total = qty * price;
+  const today = new Date().toLocaleDateString('en-PH', {year:'numeric',month:'long',day:'numeric'});
+
+  // 1. Record in Sales
   DB.sales.push({ client, type, variant, qty, price, total, pickup });
-  // Auto update inventory
+
+  // 2. Auto-deduct Inventory
   const item = DB.inventory.find(i=>i.name.includes(variant));
   if(item) item.qty = Math.max(0, item.qty - qty);
-  // Auto update finance
-  DB.finance.push({ date:'New Entry', desc:`Order: ${client}`, type:'Income', amount:total, module:'Sales_CRM' });
-  renderSalesTable(); renderStockBars(); renderFinanceTable(); initCharts();
-  document.getElementById('sal-alert').classList.add('show');
-  setTimeout(()=>document.getElementById('sal-alert').classList.remove('show'), 3000);
+
+  // 3. Auto-log Finance income
+  DB.finance.push({ date:today, desc:`Order: ${client} (${variant} x${qty}kg)`, type:'Income', amount:total, module:'Sales_CRM' });
+
+  refreshAll();
+  showAlert('sal-alert');
   document.getElementById('sal-client').value='';
   document.getElementById('sal-qty').value='';
   document.getElementById('sal-price').value='';
 }
 
 function addHarvest() {
-  const variant = document.getElementById('prod-variant').value;
-  const week = document.getElementById('prod-week').value;
+  const variant   = document.getElementById('prod-variant').value;
+  const week      = document.getElementById('prod-week').value;
   const harvested = parseFloat(document.getElementById('prod-harvest').value);
-  const sold = parseFloat(document.getElementById('prod-sold').value);
+  const sold      = parseFloat(document.getElementById('prod-sold').value) || 0;
   if(!harvested || !week) return;
   const remaining = harvested - sold;
+
+  // 1. Record in Production
   DB.production.push({ variant, week, harvested, sold, remaining });
-  // Auto update inventory
+
+  // 2. Auto-update Inventory (add remaining to stock)
   const item = DB.inventory.find(i=>i.name.includes(variant));
   if(item) item.qty += remaining;
-  renderProductionTable(); renderStockBars(); initCharts();
-  document.getElementById('prod-alert').classList.add('show');
-  setTimeout(()=>document.getElementById('prod-alert').classList.remove('show'), 3000);
+
+  refreshAll();
+  showAlert('prod-alert');
   document.getElementById('prod-week').value='';
   document.getElementById('prod-harvest').value='';
   document.getElementById('prod-sold').value='';
 }
 
+// =================== HELPERS ===================
+function showAlert(id) {
+  const el = document.getElementById(id);
+  el.classList.add('show');
+  setTimeout(()=>el.classList.remove('show'), 3500);
+}
+
 // =================== INIT ===================
-renderFinanceTable();
-renderHRMTable();
-renderSalesTable();
-renderProductionTable();
-renderStockBars();
-renderReporting();
-initCharts();
+refreshAll();
 </script>
 </body>
 </html>
