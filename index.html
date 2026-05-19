@@ -745,6 +745,18 @@
           </div>
         </div>
       </div>
+
+      <div class="panel">
+        <div class="panel-header"><span class="panel-title">Staff Wage Payout</span><span class="panel-tag">PAYROLL DEMO</span></div>
+        <div class="panel-body">
+          <div style="font-size:12px;color:var(--text-secondary);margin-bottom:14px;line-height:1.7">
+            Simulates a monthly payroll run — logs each active employee's salary as an <strong style="color:var(--accent-red)">Expense</strong> in the Finance ledger under module <strong style="color:var(--text-primary)">HRM</strong>. All KPIs and Reporting update automatically.
+          </div>
+          <div id="wage-preview" style="margin-bottom:14px"></div>
+          <button class="btn-submit" onclick="payStaffWages()" style="background:rgba(243,156,18,0.2);border:1px solid rgba(243,156,18,0.4);color:var(--accent);" onmouseover="this.style.background='rgba(243,156,18,0.35)'" onmouseout="this.style.background='rgba(243,156,18,0.2)'">💸 PAY ALL STAFF WAGES</button>
+          <div class="alert" id="hrm-wage-alert" style="background:rgba(243,156,18,0.1);border-color:rgba(243,156,18,0.4);color:var(--accent)">💸 Payroll processed. All salaries logged as expenses in Finance. Reporting updated.</div>
+        </div>
+      </div>
     </div>
 
     <!-- INVENTORY PAGE -->
@@ -1218,6 +1230,25 @@ function fireEmployee(index) {
   showAlert('hrm-fire-alert');
 }
 
+function renderWagePreview() {
+  const el = document.getElementById("wage-preview");
+  if (!el) return;
+  const total = DB.hrm.reduce((s,r)=>s+r.salary,0);
+  el.innerHTML = `<table class="data-table" style="margin-bottom:6px"><thead><tr><th>Employee</th><th>Position</th><th>Salary (PHP)</th></tr></thead><tbody>${DB.hrm.map(r=>`<tr><td style="color:var(--text-primary)">${r.name}</td><td>${r.position}</td><td style="color:var(--accent-red)">\u20B1${r.salary.toLocaleString()}</td></tr>`).join("")}<tr style="border-top:1px solid var(--border-bright)"><td colspan="2" style="color:var(--text-muted);font-weight:700;font-size:10px;letter-spacing:1px">TOTAL PAYROLL</td><td style="color:var(--accent);font-weight:700">\u20B1${total.toLocaleString()}</td></tr></tbody></table>`;
+}
+
+function payStaffWages() {
+  if (DB.hrm.length === 0) { alert("No employees to pay."); return; }
+  const total = DB.hrm.reduce((s,r)=>s+r.salary,0);
+  if (!confirm("Process payroll for "+DB.hrm.length+" employees?\nTotal: \u20B1"+total.toLocaleString()+" will be logged as expenses in Finance.")) return;
+  const today = new Date().toLocaleDateString("en-PH", {year:"numeric",month:"long",day:"numeric"});
+  DB.hrm.forEach(emp => {
+    DB.finance.push({ date:today, desc:"Staff wage: "+emp.name+" ("+emp.position+")", type:"Expense", amount:emp.salary, module:"HRM" });
+  });
+  refreshAll();
+  showAlert("hrm-wage-alert");
+}
+
 function renderSalesTable() {
   document.getElementById('salesTable').innerHTML = DB.sales.map(r => `<tr>
     <td style="color:var(--text-primary)">${r.client}</td>
@@ -1339,6 +1370,7 @@ function refreshAll() {
   renderProductionTable();
   renderStockBars();
   renderReporting();
+  renderWagePreview();
   initCharts();
   saveDB(); // auto-save to localStorage
 }
